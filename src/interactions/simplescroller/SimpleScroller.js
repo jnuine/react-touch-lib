@@ -19,8 +19,8 @@ var SimpleScroller = React.createClass({
     return {left: 0, top: 0};
   },
 
-  componentWillMount: function() {
-    this.scroller = new Scroller(this.handleScroll, this.props.options);
+  componentWillMount: function () {
+    this.scroller = new ZyngaScroller(this.handleScroll, this.props.options);
     this.configured = false;
   },
 

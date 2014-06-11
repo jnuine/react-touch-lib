@@ -9,7 +9,7 @@ var ZyngaScroller = require('../../environment/ZyngaScroller');
 
 var LeftNavContainer = React.createClass({
   componentWillMount: function() {
-    this.scroller = new Scroller(this._handleScroll, {
+    this.scroller = new ZyngaScroller(this._handleScroll, {
       bouncing: false,
       scrollingX: true,
       scrollingY: false,
