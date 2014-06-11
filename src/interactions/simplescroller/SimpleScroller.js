@@ -62,6 +62,11 @@ var SimpleScroller = React.createClass({
   },
 
   render: function() {
+
+    React.Children.forEach(this.props.children, function (child) {
+      child.props.refreshScroller = this.refreshScroller;
+    }, this);
+
     return this.transferPropsTo(
       <TouchableArea scroller={this.scroller} style={{overflow: 'hidden'}}>
         <AnimatableContainer
