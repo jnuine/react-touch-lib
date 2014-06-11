@@ -15,8 +15,8 @@
     "url": "https://github.com/petehunt/react-touch-lib"
   },
   "scripts": {
-    "start": "jsxc --watch src/ lib/",
-    "build": "jsxc src/ lib/"
+    "start": "mkdir -p lib/ && jsxc --watch src/ lib/",
+    "build": "mkdir -p lib/ && jsxc src/ lib/"
   },
   "files": ["lib/"],
   "author": "Pete Hunt",
