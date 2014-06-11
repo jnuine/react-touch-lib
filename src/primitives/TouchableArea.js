@@ -16,7 +16,6 @@ var TouchableArea = React.createClass({
     }
 
     this.props.scroller.doTouchStart(e.touches, e.timeStamp);
-    e.preventDefault();
   },
 
   handleTouchMove: function(e) {
@@ -25,7 +24,6 @@ var TouchableArea = React.createClass({
     }
 
     this.props.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-    e.preventDefault();
   },
 
   handleTouchEnd: function(e) {
