@@ -1,7 +1,9 @@
 var React = require('react');
 
 var ReactTouch = {
-  setup: function() {
+  setup: function () {
+    React.initializeTouchEvents(true);
+
     var EventPluginHub = require('react/lib/EventPluginHub');
     var ResponderEventPlugin = require('./thirdparty/ResponderEventPlugin');
     var TapEventPlugin = require('./thirdparty/TapEventPlugin');
@@ -11,7 +13,7 @@ var ReactTouch = {
       TapEventPlugin: TapEventPlugin
     });
 
-    React.initializeTouchEvents(true);
+    return React;
   }
 };
 
