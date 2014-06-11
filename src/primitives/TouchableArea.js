@@ -32,7 +32,30 @@ var TouchableArea = React.createClass({
     }
 
     this.props.scroller.doTouchEnd(e.timeStamp);
-    e.preventDefault();
+  },
+
+  handleMouseDown: function(e) {
+    if (!this.props.scroller || !this.props.touchable) {
+      return;
+    }
+
+    this.props.scroller.doTouchStart([e], e.timeStamp);
+  },
+
+  handleMouseMove: function(e) {
+    if (!this.props.scroller || !this.props.touchable) {
+      return;
+    }
+
+    this.props.scroller.doTouchMove([e], e.timeStamp);
+  },
+
+  handleMouseUp: function(e) {
+    if (!this.props.scroller || !this.props.touchable) {
+      return;
+    }
+
+    this.props.scroller.doTouchEnd(e.timeStamp);
   },
 
   render: function() {
@@ -42,7 +65,10 @@ var TouchableArea = React.createClass({
         onTouchStart={this.handleTouchStart}
         onTouchMove={this.handleTouchMove}
         onTouchEnd={this.handleTouchEnd}
-        onTouchCancel={this.handleTouchEnd}>
+        onTouchCancel={this.handleTouchEnd}
+        onMouseDown={this.handleMouseDown}
+        onMouseMove={this.handleMouseMove}
+        onMouseUp={this.handleMouseUp}>
         {this.props.children}
       </component>
     );
