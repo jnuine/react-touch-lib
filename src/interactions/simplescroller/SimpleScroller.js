@@ -24,11 +24,14 @@ var SimpleScroller = React.createClass({
     this.configured = false;
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     this.configure();
   },
 
-  componentDidUpdate: function() {
+  componentDidUpdate: function (prevProps) {
+    if (this.props.children.length !== prevProps.children.length) {
+      this.configured = false;
+    }
     this.configure();
   },
 
@@ -37,12 +40,16 @@ var SimpleScroller = React.createClass({
       return;
     }
     this.configured = true;
+    this.refreshScroller();
+  },
+
+  refreshScroller: function () {
     var node = this.refs.content.getDOMNode();
     this.scroller.setDimensions(
       this.getDOMNode().clientWidth,
       this.getDOMNode().clientHeight,
       node.clientWidth,
-      node.clientHeight
+      node.offsetTop + node.lastChild.offsetHeight + node.lastChild.offsetTop
     );
   },
 
