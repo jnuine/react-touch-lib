@@ -8,17 +8,20 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "jsxc": "~0.1.4"
+    "jsxc": "~0.1.4",
+    "chokidar": "^0.8.2"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/petehunt/react-touch-lib"
   },
   "scripts": {
-    "start": "mkdir -p lib/ && jsxc --watch src/ lib/",
-    "build": "mkdir -p lib/ && jsxc src/ lib/"
+    "start": "scripts/watch.js",
+    "build": "make build"
   },
-  "files": ["lib/"],
+  "files": [
+    "lib/"
+  ],
   "author": "Pete Hunt",
   "license": "Apache 2"
 }

@@ -15,7 +15,7 @@ var ANIMATABLE_CONTAINER_STYLE = {
 };
 
 var SimpleScroller = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {left: 0, top: 0};
   },
 
