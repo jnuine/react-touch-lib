@@ -22,6 +22,7 @@ var EventConstants = require('react/lib/EventConstants');
 var EventPluginUtils = require('react/lib/EventPluginUtils');
 var EventPropagators = require('react/lib/EventPropagators');
 var SyntheticEvent = require('react/lib/SyntheticEvent');
+var SyntheticTouchEvent = require('react/lib/SyntheticTouchEvent');
 
 var accumulate = require('react/lib/accumulate');
 var keyOf = require('react/lib/keyOf');
@@ -34,6 +35,24 @@ var hasDispatches = EventPluginUtils.hasDispatches;
 var executeDispatchesInOrderStopAtTrue =
   EventPluginUtils.executeDispatchesInOrderStopAtTrue;
 
+var topLevelTypes = EventConstants.topLevelTypes;
+
+var touch = EventPluginUtils.useTouchEvents;
+
+var startDependencies = touch ?
+  [topLevelTypes.topMouseDown, topLevelTypes.topTouchStart] :
+  [topLevelTypes.topMouseDown];
+
+var moveDependencies = touch ?
+  [topLevelTypes.topMouseMove, topLevelTypes.topTouchMove] :
+  [topLevelTypes.topMouseMove];
+
+var scrollDependencies = [topLevelTypes.topScroll];
+
+var releaseDependencies = touch ?
+  [topLevelTypes.topMouseUp, topLevelTypes.topTouchEnd] :
+  [topLevelTypes.topMouseUp];
+
 /**
  * ID of element that should respond to touch/move types of interactions, as
  * indicated explicitly by relevant callbacks.
@@ -41,6 +60,18 @@ var executeDispatchesInOrderStopAtTrue =
 var responderID = null;
 var isPressing = false;
 
+/**
+ * List of events the responder plugin exposes:
+ * - onStartShouldSetResponder{Capture}
+ * - onScrollShouldSetResponder{Capture}
+ * - onMoveShouldSetResponder{Capture}
+ * - onResponderMove
+ * - onResponderRelease
+ * - onResponderTerminationRequest
+ * - onResponderGrant
+ * - onResponderReject
+ * - onResponderTerminate
+ */
 var eventTypes = {
   /**
    * On a `touchStart`/`mouseDown`, is it desired that this element become the
@@ -50,7 +81,8 @@ var eventTypes = {
     phasedRegistrationNames: {
       bubbled: keyOf({onStartShouldSetResponder: null}),
       captured: keyOf({onStartShouldSetResponderCapture: null})
-    }
+    },
+    dependencies: startDependencies
   },
 
   /**
@@ -64,7 +96,8 @@ var eventTypes = {
     phasedRegistrationNames: {
       bubbled: keyOf({onScrollShouldSetResponder: null}),
       captured: keyOf({onScrollShouldSetResponderCapture: null})
-    }
+    },
+    dependencies: scrollDependencies
   },
 
   /**
@@ -75,20 +108,41 @@ var eventTypes = {
     phasedRegistrationNames: {
       bubbled: keyOf({onMoveShouldSetResponder: null}),
       captured: keyOf({onMoveShouldSetResponderCapture: null})
-    }
+    },
+    dependencies: moveDependencies
   },
 
   /**
    * Direct responder events dispatched directly to responder. Do not bubble.
    */
-  responderMove: {registrationName: keyOf({onResponderMove: null})},
-  responderRelease: {registrationName: keyOf({onResponderRelease: null})},
-  responderTerminationRequest: {
-    registrationName: keyOf({onResponderTerminationRequest: null})
+  responderStart: {
+   registrationName: keyOf({onResponderStart: null}),
+   dependencies: startDependencies
   },
-  responderGrant: {registrationName: keyOf({onResponderGrant: null})},
-  responderReject: {registrationName: keyOf({onResponderReject: null})},
-  responderTerminate: {registrationName: keyOf({onResponderTerminate: null})}
+  responderMove: {
+    registrationName: keyOf({onResponderMove: null}),
+    dependencies: moveDependencies
+  },
+  responderRelease: {
+    registrationName: keyOf({onResponderRelease: null}),
+    dependencies: releaseDependencies
+  },
+  responderTerminationRequest: {
+    registrationName: keyOf({onResponderTerminationRequest: null}),
+    dependencies: []
+  },
+  responderGrant: {
+    registrationName: keyOf({onResponderGrant: null}),
+    dependencies: []
+  },
+  responderReject: {
+    registrationName: keyOf({onResponderReject: null}),
+    dependencies: []
+  },
+  responderTerminate: {
+    registrationName: keyOf({onResponderTerminate: null}),
+    dependencies: []
+  }
 };
 
 /**
@@ -246,6 +300,14 @@ function canTriggerTransfer(topLevelType) {
          (isPressing && isMoveish(topLevelType));
 }
 
+// This is ugly, but I have no idea how to do differently
+var touchEvents = [topLevelTypes.topTouchStart, topLevelTypes.topTouchMove,
+  topLevelTypes.topTouchEnd, topLevelTypes.topTouchCancel];
+
+function isTouchEvent(topLevelType) {
+  return touchEvents.indexOf(topLevelType) > -1;
+}
+
 /**
  * Event plugin for formalizing the negotiation between claiming locks on
  * receiving touches.
@@ -297,7 +359,9 @@ var ResponderEventPlugin = {
       isEndish(topLevelType) ? eventTypes.responderRelease :
       isStartish(topLevelType) ? eventTypes.responderStart : null;
     if (type) {
-      var gesture = SyntheticEvent.getPooled(
+      var syntheticEventObj =
+        isTouchEvent(topLevelType) ? SyntheticTouchEvent : SyntheticEvent;
+      var gesture = syntheticEventObj.getPooled(
         type,
         responderID || '',
         nativeEvent
