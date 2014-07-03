@@ -1,0 +1,15 @@
+{
+  "eqeqeq": true,
+  "indent": 2,
+  "quotmark": "single",
+  "trailing": true,
+
+  "undef": true,
+  "unused": true,
+
+  "maxlen": 80,
+
+  "node": true,
+  "browser": true,
+  "wsh": false
+}
