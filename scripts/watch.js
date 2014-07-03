@@ -5,14 +5,16 @@
 
 var path = require('path');
 var SRC = path.join(process.cwd(), 'src/');
+var NODE_MODULES = path.join(process.cwd(), 'node_modules/');
 
 var spawn = require('child_process').spawn;
-function launchMake () {
+function launchMake (event, path) {
+  console.log(event, 'File:', path);
   var make = spawn('make', ['build']);
   make.stdout.pipe(process.stdout);
   make.stderr.pipe(process.stderr);
 }
 
 require('chokidar')
-  .watch(SRC, {ignored: /[\/\\]\./, persistent: true, ignoreInitial: true})
+  .watch([SRC, NODE_MODULES], {ignored: /[\/\\]\./, persistent: true, ignoreInitial: true})
   .on('all', launchMake);

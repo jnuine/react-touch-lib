@@ -4,10 +4,10 @@ PATH := $(BIN):$(PATH)
 LIBDIR = lib
 SRCDIR = src
 
-SRCFILES_JS = $(shell find $(SRCDIR) -name *.js -not -name *.react.js)
+SRCFILES_JS = $(shell find $(SRCDIR) -name "*.js" -not -name "*.react.js")
 LIBFILES_JS = $(SRCFILES_JS:$(SRCDIR)%=$(LIBDIR)%)
 
-SRCFILES_JSX = $(shell find $(SRCDIR) -name *.react.js)
+SRCFILES_JSX = $(shell find $(SRCDIR) -name "*.react.js")
 LIBFILES_JSX = $(SRCFILES_JSX:$(SRCDIR)%.react.js=$(LIBDIR)%.js)
 
 .PHONY: build clean
@@ -22,12 +22,12 @@ $(LIBDIR):
 
 $(LIBDIR)/%.js: $(SRCDIR)/%.react.js
 	@echo Compiling and copying $< to $@
-	@mkdir -p $(basename $@)
+	@mkdir -p $(dir $@)
 	@jsxc $< > $@
 
 $(LIBDIR)/%.js: $(SRCDIR)/%.js
 	@echo Copying $< to $@
-	@mkdir -p $(basename $@)
+	@mkdir -p $(dir $@)
 	@cp $< $@
 
 # notes & reminders:
