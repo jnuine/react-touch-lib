@@ -2,8 +2,6 @@
 
 var React = require('react');
 
-var Utils = require('../../environment/Utils');
-
 var AnimatableContainer = require('../../primitives/AnimatableContainer');
 var TouchableArea = require('../../primitives/TouchableArea');
 var ZyngaScroller = require('../../environment/ZyngaScroller');
