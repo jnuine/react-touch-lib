@@ -4,7 +4,6 @@ var React = require('react');
 
 var AnimatableContainer = require('../../primitives/AnimatableContainer');
 var TouchableArea = require('../../primitives/TouchableArea');
-var ZyngaScroller = require('../../environment/ZyngaScroller');
 
 var SimpleSwipeBehaviors = require('./SimpleSwipeBehaviors');
 
@@ -56,7 +55,7 @@ var SimpleSwipe = React.createClass({
   },
 
   componentWillMount: function () {
-    this.scroller = new ZyngaScroller(this.handleScroll, {
+    this.scroller = new (this.props.Scroller)(this.handleScroll, {
       bouncing: false,
       scrollingX: true,
       scrollingY: false,

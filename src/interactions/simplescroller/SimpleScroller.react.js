@@ -4,7 +4,6 @@ var React = require('react');
 
 var AnimatableContainer = require('../../primitives/AnimatableContainer');
 var TouchableArea = require('../../primitives/TouchableArea');
-var ZyngaScroller = require('../../environment/ZyngaScroller');
 
 var ANIMATABLE_CONTAINER_STYLE = {
   bottom: 0,
@@ -53,8 +52,8 @@ var SimpleScroller = React.createClass({
   },
 
   componentWillMount: function () {
-    this.scroller = new ZyngaScroller(this.handleScroll, this.props.options);
     this.configured = false;
+    this.scroller = new (this.props.Scroller)(this.handleScroll, this.props.options);
   },
 
   componentDidMount: function () {
