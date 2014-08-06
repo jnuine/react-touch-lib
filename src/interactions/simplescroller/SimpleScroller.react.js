@@ -47,7 +47,8 @@ var SimpleScroller = React.createClass({
       options: {
         scrollingY: true,
         scrollingX: false
-      }
+      },
+      onScroll: function () {}
     };
   },
 
@@ -61,9 +62,12 @@ var SimpleScroller = React.createClass({
   },
 
   componentDidUpdate: function (prevProps) {
-    if (this.props.children.length !== prevProps.children.length) {
-      this.configured = false;
-    }
+    this.configured = !(
+      this.configured &&
+      (!this.props.children && prevProps.children) ||
+      (this.props.children && !prevProps.children) ||
+      (this.props.children.length !== prevProps.children.length)
+    );
     this.configure();
   },
 
@@ -136,6 +140,7 @@ var SimpleScroller = React.createClass({
   },
 
   handleScroll: function(left, top) {
+    this.props.onScroll(left, top);
     // TODO: zoom
     this.setState({
       left: left,
@@ -144,11 +149,6 @@ var SimpleScroller = React.createClass({
   },
 
   render: function() {
-
-    React.Children.forEach(this.props.children, function (child) {
-      child.props.refreshScroller = this.refreshScroller;
-    }, this);
-
     return this.transferPropsTo(
       <TouchableArea
         scroller={this.scroller}

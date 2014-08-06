@@ -2,11 +2,13 @@
   "name": "react-touch",
   "version": "0.0.7",
   "description": "React component library for building inertial touch applications.",
-  "main": "lib/ReactTouch.js",
+  "main": "index.js",
   "peerDependencies": {
     "react": "~0.10"
   },
-  "dependencies": {},
+  "dependencies": {
+    "immutable": "^2.0.4"
+  },
   "devDependencies": {
     "jsxc": "~0.1.4",
     "chokidar": "^0.8.2"
@@ -22,7 +24,6 @@
   "files": [
     "lib/"
   ],
-  "main": "index.js",
   "author": "Pete Hunt",
   "license": "Apache 2"
 }
