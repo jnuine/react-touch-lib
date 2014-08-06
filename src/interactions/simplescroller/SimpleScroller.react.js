@@ -90,13 +90,12 @@ var SimpleScroller = React.createClass({
     );
   },
 
-  handleStartShouldSetResponder: function (event, id) {
+  handleStartShouldSetResponder: function (event) {
     if (event.type === 'touchstart') {
       isScrolling = false;
       isScrollingStarting = true;
       startCoords.x = getAxisCoordOfEvent(Axis.x, event.nativeEvent);
       startCoords.y = getAxisCoordOfEvent(Axis.y, event.nativeEvent);
-      console.log(id, 'Setting responder for start');
       return true;
     }
     return false;
@@ -112,7 +111,7 @@ var SimpleScroller = React.createClass({
       absDistanceY - absDistanceX;
   },
 
-  handleMoveShouldSetResponder: function (event, id) {
+  handleMoveShouldSetResponder: function (event) {
     var isTouch = event.type === 'touchmove';
     if (!isTouch) return false;
     if (this.props.options.scrollingX && this.props.options.scrollingY) {
@@ -121,18 +120,12 @@ var SimpleScroller = React.createClass({
     if (isScrolling) return true;
     if (isScrollingStarting) {
       var delta = this.getMoveDelta(event);
-      console.log(delta);
-      console.log(this.props.threshold);
       if (delta > this.props.threshold) {
-        console.log(id, 'Setting responder to move');
         isScrolling = true;
         return true;
       }
-      else if (delta > -1 * this.props.threshold) {
-        console.log(id, 'Not setting responder to move, need to see more');
-      }
+      else if (delta > -1 * this.props.threshold) { }
       else if (delta <= -1 * this.props.threshold){
-        console.log(id, 'Not setting responder to move');
         isScrollingStarting = false;
       }
     }

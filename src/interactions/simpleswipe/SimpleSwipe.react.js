@@ -127,14 +127,12 @@ var SimpleSwipe = React.createClass({
     });
   },
 
-  handleStartShouldSetResponder: function (event, id) {
-    console.log(id, 'handleStartShouldSetResponder');
+  handleStartShouldSetResponder: function (event) {
     if (event.type === 'touchstart') {
       this.setState({isSwiping: false});
       isSwipingStarting = true;
       startCoords.x = getAxisCoordOfEvent(Axis.x, event.nativeEvent);
       startCoords.y = getAxisCoordOfEvent(Axis.y, event.nativeEvent);
-      console.log(id, 'Setting responder for start');
       return true;
     }
     return false;
@@ -148,23 +146,18 @@ var SimpleSwipe = React.createClass({
     return absDistanceX - absDistanceY;
   },
 
-  handleMoveShouldSetResponder: function (event, id) {
+  handleMoveShouldSetResponder: function (event) {
     var isTouch = event.type === 'touchmove';
-    console.log(id, 'handleMoveShouldSetResponder', isTouch);
     if (!isTouch) return false;
     if (this.state.isSwiping) return true;
     if (isSwipingStarting) {
       var delta = this.getMoveDelta(event);
       if (delta > this.props.threshold) {
-        console.log(id, 'Setting responder to move');
         this.setState({isSwiping: true});
         return true;
       }
-      else if (delta > -1 * this.props.threshold) {
-        console.log(id, 'Not setting responder to move, need to see more');
-      }
+      else if (delta > -1 * this.props.threshold) { }
       else if (delta <= -1 * this.props.threshold){
-        console.log(id, 'Not setting responder to move');
         isSwipingStarting = false;
       }
     }
