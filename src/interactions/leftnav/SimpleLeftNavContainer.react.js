@@ -5,11 +5,10 @@ var React = require('react');
 var AnimatableContainer = require('../../primitives/AnimatableContainer');
 var LeftNavBehaviors = require('./LeftNavBehaviors');
 var TouchableArea = require('../../primitives/TouchableArea');
-var ZyngaScroller = require('../../environment/ZyngaScroller');
 
 var SimpleLeftNavContainer = React.createClass({
   componentWillMount: function () {
-    this.scroller = new ZyngaScroller(this._handleScroll, {
+    this.scroller = new (this.props.Scroller)(this._handleScroll, {
       bouncing: false,
       scrollingX: true,
       scrollingY: false,
