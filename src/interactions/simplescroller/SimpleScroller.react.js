@@ -64,9 +64,7 @@ var SimpleScroller = React.createClass({
   componentDidUpdate: function (prevProps) {
     this.configured = !(
       this.configured &&
-      (!this.props.children && prevProps.children) ||
-      (this.props.children && !prevProps.children) ||
-      (this.props.children.length !== prevProps.children.length)
+      (this.props.children !== prevProps.children)
     );
     this.configure();
   },
