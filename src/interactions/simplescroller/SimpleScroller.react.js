@@ -80,11 +80,30 @@ var SimpleScroller = React.createClass({
   refreshScroller: function () {
     var node = this.getDOMNode();
     var contentNode = this.refs.content.getDOMNode();
-    this.scroller.setDimensions(
+    this.setDimensions(
       node.clientWidth,
       node.clientHeight,
       contentNode.clientWidth,
       contentNode.clientHeight
+    );
+  },
+
+  setDimensions: function (clientWidth, clientHeight, contentWidth, contentHeight) {
+    this.dimensions = this.dimensions || {};
+    this.dimensions = {
+      clientWidth: clientWidth || this.dimensions.clientWidth,
+      clientHeight: clientHeight || this.dimensions.clientHeight,
+      contentWidth: contentWidth || this.dimensions.contentWidth,
+      contentHeight: (
+        this.props.contentHeight || contentHeight ||
+        this.dimensions.contentHeight
+      )
+    };
+    this.scroller.setDimensions(
+      clientWidth,
+      clientHeight,
+      contentWidth,
+      this.props.contentHeight || contentHeight
     );
   },
 
@@ -131,7 +150,9 @@ var SimpleScroller = React.createClass({
   },
 
   handleScroll: function(left, top) {
-    this.props.onScroll(left, top);
+    if (top >= 0 && top < (this.dimensions.contentHeight - this.dimensions.clientHeight)) {
+      this.props.onScroll(left, top);
+    }
     // TODO: zoom
     this.setState({
       left: left,
