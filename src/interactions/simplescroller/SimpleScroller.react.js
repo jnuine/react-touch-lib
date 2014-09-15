@@ -37,6 +37,8 @@ var isScrolling;
 var isScrollingStarting;
 
 var SimpleScroller = React.createClass({
+  dimensions: {},
+
   getInitialState: function () {
     return { left: 0, top: 0 };
   },
@@ -89,7 +91,6 @@ var SimpleScroller = React.createClass({
   },
 
   setDimensions: function (clientWidth, clientHeight, contentWidth, contentHeight) {
-    this.dimensions = this.dimensions || {};
     this.dimensions = {
       clientWidth: clientWidth || this.dimensions.clientWidth,
       clientHeight: clientHeight || this.dimensions.clientHeight,
