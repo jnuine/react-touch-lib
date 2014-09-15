@@ -100,11 +100,19 @@ var SimpleScroller = React.createClass({
         this.dimensions.contentHeight
       )
     };
+
     this.scroller.setDimensions(
       clientWidth,
       clientHeight,
       contentWidth,
       this.props.contentHeight || contentHeight
+    );
+
+    contentHeight = this.props.contentHeight || contentHeight;
+
+    this.shouldUpdateScrollPosition = !(
+      (clientWidth >= contentWidth) &&
+      (clientHeight >= contentHeight)
     );
   },
 
@@ -143,7 +151,7 @@ var SimpleScroller = React.createClass({
         return true;
       }
       else if (delta > -1 * this.props.threshold) { }
-      else if (delta <= -1 * this.props.threshold){
+      else if (delta <= -1 * this.props.threshold) {
         isScrollingStarting = false;
       }
     }
@@ -154,6 +162,7 @@ var SimpleScroller = React.createClass({
     if (top >= 0 && top < (this.dimensions.contentHeight - this.dimensions.clientHeight)) {
       this.props.onScroll(left, top);
     }
+    if (this.shouldUpdateScrollPosition === false) return;
     // TODO: zoom
     this.setState({
       left: left,
