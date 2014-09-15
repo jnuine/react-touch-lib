@@ -63,11 +63,7 @@ function getDistance(coords, nativeEvent) {
   );
 }
 
-var dependencies = [
-  topLevelTypes.topMouseDown,
-  topLevelTypes.topMouseMove,
-  topLevelTypes.topMouseUp
-];
+var dependencies = [];
 
 if (EventPluginUtils.useTouchEvents) {
   dependencies.push(
@@ -75,6 +71,13 @@ if (EventPluginUtils.useTouchEvents) {
     topLevelTypes.topTouchEnd,
     topLevelTypes.topTouchStart,
     topLevelTypes.topTouchMove
+  );
+}
+else {
+  dependencies.push(
+    topLevelTypes.topMouseDown,
+    topLevelTypes.topMouseMove,
+    topLevelTypes.topMouseUp
   );
 }
 
@@ -107,6 +110,12 @@ var TapEventPlugin = {
       topLevelTarget,
       topLevelTargetID,
       nativeEvent) {
+    if (
+      topLevelType === topLevelTypes.topMouseDown ||
+      topLevelType === topLevelTypes.topMouseUp
+    ) {
+      return null;
+    }
     if (!isStartish(topLevelType) && !isEndish(topLevelType)) {
       return null;
     }
