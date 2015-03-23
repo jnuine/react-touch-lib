@@ -40,7 +40,7 @@ var SimpleScroller = React.createClass({
   dimensions: {},
 
   getInitialState: function () {
-    return { left: 0, top: 0 };
+    return { left: 0, top: this.props.scrollTop || 0 };
   },
 
   getDefaultProps: function () {
@@ -61,6 +61,8 @@ var SimpleScroller = React.createClass({
 
   componentDidMount: function () {
     this.configure();
+    this.scroller.scrollTo(this.state.left, this.state.top);
+    global.__scrollTop = this.state.top;
   },
 
   componentDidUpdate: function (prevProps) {
@@ -110,10 +112,6 @@ var SimpleScroller = React.createClass({
 
     contentHeight = this.props.contentHeight || contentHeight;
 
-    this.shouldUpdateScrollPosition = !(
-      (clientWidth >= contentWidth) &&
-      (clientHeight >= contentHeight)
-    );
   },
 
   handleStartShouldSetResponder: function (event) {
@@ -162,8 +160,7 @@ var SimpleScroller = React.createClass({
     if (top >= 0 && top < (this.dimensions.contentHeight - this.dimensions.clientHeight)) {
       this.props.onScroll(left, top);
     }
-    if (this.shouldUpdateScrollPosition === false) return;
-    // TODO: zoom
+    global.__scrollTop = top;
     this.setState({
       left: left,
       top: top
