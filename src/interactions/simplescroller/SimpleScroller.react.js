@@ -81,6 +81,10 @@ var SimpleScroller = React.createClass({
     this.refreshScroller();
   },
 
+  scrollToTop: function () {
+    this.scroller.scrollTo(this.state.left, 0);
+  },
+
   refreshScroller: function () {
     var node = this.getDOMNode();
     var contentNode = this.refs.content.getDOMNode();
