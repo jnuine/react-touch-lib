@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+'use strict';
 
 var React = require('react');
 
@@ -138,8 +138,8 @@ var LeftNavContainer = React.createClass({
       top: this.props.topHeight
     };
 
-    return this.transferPropsTo(
-      <div>
+    return (
+      <div {...this.props}>
         {side}
         <AnimatableContainer
           style={contentStyle}

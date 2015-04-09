@@ -1,11 +1,11 @@
-/** @jsx React.DOM */
+'use strict';
 
 var React = require('react');
 
 var TouchableArea = React.createClass({
   getDefaultProps: function() {
     return {
-      component: React.DOM.div,
+      component: 'div',
       touchable: true
     };
   },
@@ -35,14 +35,14 @@ var TouchableArea = React.createClass({
   },
 
   render: function() {
-    var component = this.props.component;
-    return this.transferPropsTo(
-      <component
+    return (
+      <div
+        {...this.props}
         onTouchStart={this.handleTouchStart}
         onResponderMove={this.handleTouchMove}
         onResponderRelease={this.handleTouchEnd}>
         {this.props.children}
-      </component>
+      </div>
     );
   }
 });

@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+'use strict';
 
 // inspired by http://stackoverflow.com/questions/20870448/reactjs-modeling-bi-directional-infinite-scrolling
 
@@ -6,7 +6,7 @@ var Immutable = require('immutable');
 
 var SimpleScroller = require('../simplescroller/SimpleScroller');
 
-var React = require('React');
+var React = require('react');
 
 var InfiniteList = React.createClass({
 
@@ -229,8 +229,9 @@ var InifiniteScroller = React.createClass({
 
   render: function () {
     console.info('InifiniteScroller', 'render');
-    return this.transferPropsTo(
+    return (
       <SimpleScroller
+        {...this.props}
         key="scroller"
         ref="scroller"
         setChildrenScrollProps={true}

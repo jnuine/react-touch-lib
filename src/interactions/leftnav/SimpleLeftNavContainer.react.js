@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+'use strict';
 
 var React = require('react');
 
@@ -21,7 +21,7 @@ var SimpleLeftNavContainer = React.createClass({
   },
 
   _measure: function () {
-    var node = this.getDOMNode();
+    var node = React.findDOMNode(this);
     this.scroller.setDimensions(
       node.clientWidth,
       node.clientHeight,
@@ -135,8 +135,8 @@ var SimpleLeftNavContainer = React.createClass({
       top: this.props.topHeight
     };
 
-    return this.transferPropsTo(
-      <div>
+    return (
+      <div {...this.props}>
         {side}
         <AnimatableContainer
           style={contentStyle}

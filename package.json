@@ -3,16 +3,17 @@
   "version": "0.0.7",
   "description": "React component library for building inertial touch applications.",
   "dependencies": {
-    "immutable": "^2.0.4",
-    "react": "0.11.2"
+    "immutable": "2.0.17",
+    "react": "0.13.1",
+    "react-tap-event-plugin": "git+https://github.com/jnuine/react-touch-lib.git#6183439",
   },
   "devDependencies": {
-    "jsxc": "~0.1.4",
-    "chokidar": "^0.8.2"
+    "babel": "5.0.9",
+    "chokidar": "0.8.2"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/petehunt/react-touch-lib"
+    "url": "https://github.com/jnuine/react-touch-lib"
   },
   "scripts": {
     "start": "scripts/watch.js",

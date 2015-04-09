@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+'use strict';
 
 var React = require('react');
 
@@ -203,8 +203,9 @@ var SimpleSwipe = React.createClass({
     }
 
 
-    return this.transferPropsTo(
+    return (
       <TouchableArea
+        {...this.props}
         style={{position: 'relative'}}
         scroller={this.scroller}
         onStartShouldSetResponder={this.handleStartShouldSetResponder}
