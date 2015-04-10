@@ -116,6 +116,10 @@ var SimpleScroller = React.createClass({
 
     contentHeight = this.props.contentHeight || contentHeight;
 
+    // this.shouldUpdateScrollPosition = !(
+    //   (clientWidth >= contentWidth) &&
+    //   (clientHeight >= contentHeight)
+    // );
   },
 
   handleStartShouldSetResponder: function (event) {
@@ -164,6 +168,7 @@ var SimpleScroller = React.createClass({
     if (top >= 0 && top < (this.dimensions.contentHeight - this.dimensions.clientHeight)) {
       this.props.onScroll(left, top);
     }
+    // if (this.shouldUpdateScrollPosition === false) return;
     global.__scrollTop = top;
     this.setState({
       left: left,
