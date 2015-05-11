@@ -2,17 +2,37 @@
 
 // inspired by http://stackoverflow.com/questions/20870448/reactjs-modeling-bi-directional-infinite-scrolling
 
-var Immutable = require('immutable');
+// var Immutable = require('immutable');
+var operative = require('operative');
 
 var SimpleScroller = require('../simplescroller/SimpleScroller');
 
 var React = require('react');
 
+function KeyPool () {
+  var length = 0;
+  this._generate = function () {
+    this._free.push(length++);
+  };
+  this._free = [];
+}
+
+KeyPool.prototype.get = function () {
+  if (this._free.length === 0) {
+    this._generate();
+  }
+  return this._free.pop();
+};
+
+KeyPool.prototype.release = function (key) {
+  this._free.unshift(key);
+};
+
 var InfiniteList = React.createClass({
 
+  keyPool: new KeyPool(),
   itemsTop: 0,
   itemsHeight: 0,
-  maxListHeight: Math.Infinity,
   lastRenderScrollTop: 0,
   scrollTop: 0,
 
@@ -26,12 +46,12 @@ var InfiniteList = React.createClass({
 
   getInitialState: function () {
     return {
-      items: Immutable.Vector(),
+      items: [],
     };
   },
 
   addTopItems: function (items, targetTop) {
-    var index = items.first() || 0;
+    var index = items.first() ? items.first().index : 0;
     var top = this.itemsTop;
     var height = this.itemsHeight;
     var getItemInfo = this.props.getItemInfo;
@@ -43,7 +63,10 @@ var InfiniteList = React.createClass({
       top -= item.height;
       height += item.height;
       // log('adding item', index);
-      items = items.unshift(index);
+      items = items.unshift({
+        index: index,
+        key: this.keyPool.get()
+      });
     }
 
     this.itemsTop = top;
@@ -52,7 +75,7 @@ var InfiniteList = React.createClass({
   },
 
   removeTopItems: function (items, targetTop) {
-    var index = items.first() || 0;
+    var index = items.first() ? items.first().index : 0;
     var top = this.itemsTop;
     var height = this.itemsHeight;
     var getItemInfo = this.props.getItemInfo;
@@ -66,6 +89,7 @@ var InfiniteList = React.createClass({
       top += item.height;
       height -= item.height;
       // log('removing item', index);
+      this.keyPool.release(items.first().key);
       items = items.shift();
       index++;
     }
@@ -76,7 +100,7 @@ var InfiniteList = React.createClass({
   },
 
   addBottomItems: function (items, targetBottom) {
-    var index = items.last() || 0;
+    var index = items.last() ? items.last().index : 0;
     var top = this.itemsTop + this.itemsHeight;
     var getItemInfo = this.props.getItemInfo;
     // var log = console.log.bind(console, 'addBottomItems');
@@ -91,7 +115,10 @@ var InfiniteList = React.createClass({
       }
       top += item.height;
       // log('adding item', index);
-      items = items.push(index);
+      items = items.push({
+        index: index,
+        key: this.keyPool.get()
+      });
     }
 
     this.itemsHeight = top - this.itemsTop;
@@ -99,7 +126,7 @@ var InfiniteList = React.createClass({
   },
 
   removeBottomItems: function (items, targetBottom) {
-    var index = items.last() || 0;
+    var index = items.last() ? items.last().index : 0;
     var top = this.itemsTop + this.itemsHeight;
     var getItemInfo = this.props.getItemInfo;
     // var log = console.log.bind(console, 'removeBottomItems');
@@ -111,6 +138,7 @@ var InfiniteList = React.createClass({
       if (top - item.height < targetBottom) break;
       top -= item.height;
       // log('removing item', index);
+      this.keyPool.release(items.last().key);
       items = items.pop();
       index--;
     }
@@ -127,7 +155,7 @@ var InfiniteList = React.createClass({
     if (top < 0) {
       shouldComponentUpdate = false;
     }
-    if (top + this.props.viewportHeight >= this.maxListHeight) {
+    if (top + this.props.viewportHeight >= this.props.maxListHeight) {
       shouldComponentUpdate = false;
     }
     if (Math.abs(this.lastRenderScrollTop - top) < this.props.renderThreshold) {
@@ -136,53 +164,217 @@ var InfiniteList = React.createClass({
     }
 
     if (shouldComponentUpdate) {
-      this.prerender();
+      try {
+        this.prerender();
+      }
+      catch (e) {
+        console.error(e);
+      }
     }
   },
 
   componentWillReceiveProps: function (nextProps) {
     if (!this.props.viewportHeight && nextProps.viewportHeight) {
-      this.prerender(nextProps.viewportHeight);
+      try {
+        this.prerender(nextProps.viewportHeight);
+      }
+      catch (e) {
+        console.error(e);
+      }
     }
   },
 
   shouldComponentUpdate: function (nextProps, nextState) {
-    // console.log('SHOULD COMPONENT UPDATE', nextProps);
-    // Shout out to Immutable :)
-    return (this.state.items !== nextState.items);
+    return (
+      this.state.items.length !== nextState.items.length ||
+      this.state.items.every(function (item, i) {
+        return nextState.items[i] === item;
+      })
+    );
   },
 
-  componentDidUpdate: function () {
-    this.props.onListDidUpdate();
-  },
+  prerenderWorker: operative({
+    addTopItems: function (items, top, height, heights, targetTop, cb) {
+      var index = items[0] || 0;
+
+      var itemHeight;
+      while (top > targetTop) {
+        --index;
+        itemHeight = heights[index];
+        // log('getItemInfo', index);
+        if (!itemHeight) break;
+        top -= itemHeight;
+        height += itemHeight;
+        // log('adding item', index);
+        items.unshift(index);
+      }
+
+      cb({
+        items: items,
+        top: top,
+        height: height
+      });
+    },
+
+    removeTopItems: function (items, top, height, heights, targetTop, cb) {
+      var index = items[0] || 0;
+      // var log = console.log.bind(console, 'removeTopItems');
+
+      var itemHeight;
+      while (top < targetTop) {
+        // log('getItemInfo', index);
+        itemHeight = heights[index];
+        if (!itemHeight) break;
+        if (top - itemHeight > targetTop) break;
+        top += itemHeight;
+        height -= itemHeight;
+        // log('removing item', index);
+        items.shift();
+        index++;
+      }
+
+      cb({
+        items: items,
+        top: top,
+        height: height
+      });
+    },
+
+    addBottomItems: function (items, top, height, heights, targetBottom, cb) {
+      var lastIndex = items[items.length - 1] || -1;
+      var itemHeight;
+      for (
+        var index = lastIndex + 1;
+        top + height < targetBottom;
+        index++
+      ) {
+        itemHeight = heights[index];
+        if (!itemHeight) break;
+        height += itemHeight;
+        items.push(index);
+      }
+
+      cb({
+        items: items,
+        height: height
+      });
+    },
+
+    removeBottomItems: function (items, top, height, heights, targetBottom, cb) {
+      var lastIndex = items[items.length - 1] || -1;
+      var itemHeight;
+      for (
+        var index = lastIndex;
+        top + height > targetBottom;
+        index--
+      ) {
+        itemHeight = heights[index];
+        if (!itemHeight) break;
+        if (top + height - itemHeight < targetBottom) break;
+        height -= itemHeight;
+        items.pop();
+      }
+
+      cb({
+        items: items,
+        height: height
+      });
+    }
+  }),
 
   prerender: function (viewportHeight) {
     // console.log('PRE RENDER');
-    viewportHeight = viewportHeight || this.props.viewportHeight;
+    // process.nextTick(function () {
+    //   viewportHeight = viewportHeight || this.props.viewportHeight;
 
+    //   var scrollTop = this.scrollTop;
+    //   var targetTop = Math.max(scrollTop - this.props.safetyZoneSize, 0);
+    //   var targetBottom = scrollTop + viewportHeight + this.props.safetyZoneSize;
+
+    //   var items = this.state.items;
+
+    //   if (this.itemsTop > targetTop) {
+    //     items = this.addTopItems(items, targetTop);
+    //   }
+    //   else {
+    //     items = this.removeTopItems(items, targetTop);
+    //   }
+
+    //   if (this.itemsTop + this.itemsHeight > targetBottom) {
+    //     items = this.removeBottomItems(items, targetBottom);
+    //   }
+    //   else {
+    //     items = this.addBottomItems(items, targetBottom);
+    //   }
+
+    //   this.setState({
+    //     items: items
+    //   });
+    // }.bind(this));
+    viewportHeight = viewportHeight || this.props.viewportHeight;
     var scrollTop = this.scrollTop;
     var targetTop = Math.max(scrollTop - this.props.safetyZoneSize, 0);
     var targetBottom = scrollTop + viewportHeight + this.props.safetyZoneSize;
 
-    var items = this.state.items;
+    // console.log('targetTop', targetTop, 'targetBottom', targetBottom);
 
-    if (this.itemsTop > targetTop) {
-      items = this.addTopItems(items, targetTop);
+    var bottomCb = function (result) {
+      this.itemsHeight = (result && result.height !== void 0) ? result.height : this.itemsHeight;
+      this.setState({
+        items: result.items
+      });
+    }.bind(this);
+
+    var topCb = function (result) {
+      this.itemsTop = (result && result.top !== void 0) ? result.top : this.itemsTop;
+      this.itemsHeight = (result && result.height !== void 0) ? result.height : this.itemsHeight;
+      var items = (result && result.items !== void 0) ? result.items : this.state.items;
+      if (this.itemsTop + this.itemsHeight > targetBottom) {
+        this.prerenderWorker.removeBottomItems(
+          items,
+          this.itemsTop,
+          this.itemsHeight,
+          this.props.itemHeights,
+          targetBottom,
+          bottomCb
+        );
+      }
+      else {
+        this.prerenderWorker.addBottomItems(
+          items,
+          this.itemsTop,
+          this.itemsHeight,
+          this.props.itemHeights,
+          targetBottom,
+          bottomCb
+        );
+      }
+    }.bind(this);
+
+    if (top > targetTop) {
+      this.prerenderWorker.addTopItems(
+        this.state.items,
+        this.itemsTop,
+        this.itemsHeight,
+        this.props.itemHeights,
+        this.targetTop,
+        topCb
+      );
+    }
+    else if (top < targetTop) {
+      this.removeTopItems.removeTopItems(
+        this.state.items,
+        this.itemsTop,
+        this.itemsHeight,
+        this.props.itemHeights,
+        this.targetTop,
+        topCb
+      );
     }
     else {
-      items = this.removeTopItems(items, targetTop);
+      topCb();
     }
 
-    if (this.itemsTop + this.itemsHeight > targetBottom) {
-      items = this.removeBottomItems(items, targetBottom);
-    }
-    else {
-      items = this.addBottomItems(items, targetBottom);
-    }
-
-    this.setState({
-      items: items
-    });
   },
 
   render: function () {
@@ -190,9 +382,10 @@ var InfiniteList = React.createClass({
     var getItem = this.props.getItem;
 
     var topFillerHeight = Math.max(this.itemsTop, 0);
-    var bottomFillerHeight = Math.max(this.maxListHeight - this.itemsTop - this.itemsHeight, 0);
-
-    if (this.maxListHeight === Math.Infinity) bottomFillerHeight = 0;
+    var bottomFillerHeight = Math.max(
+      this.props.maxListHeight - this.itemsTop - this.itemsHeight,
+      0
+    );
 
     this.lastRenderScrollTop = this.scrollTop;
 
@@ -202,8 +395,7 @@ var InfiniteList = React.createClass({
         <div key="content">
           {
             this.state.items
-              .map(function (index) { return getItem(index); })
-              .toArray()
+              .map(function (item) { return getItem(item); })
           }
         </div>
         <div key="bottom-filler" style={{height: bottomFillerHeight}} />
@@ -214,6 +406,12 @@ var InfiniteList = React.createClass({
 
 var InifiniteScroller = React.createClass({
 
+  getDefaultProps: function () {
+    return {
+      itemHeights: []
+    };
+  },
+
   componentDidMount: function () {
     this.scrollerHeight = this.getDOMNode().clientHeight;
     this.forceUpdate();
@@ -223,26 +421,36 @@ var InifiniteScroller = React.createClass({
     this.refs['inifinite-list'].handleScroll(left, top);
   },
 
-  handleListDidUpdate: function () {
-    this.refs.scroller.refreshScroller();
+  handleDimensionsChange: function () {
+    console.warn('handleDimensionsChange');
+    this.refs.scroller.setDimensions.apply(null, arguments);
   },
 
   render: function () {
     console.info('InifiniteScroller', 'render');
+    var maxListHeight = this.props.itemHeights.reduce(
+      function (total, height) {
+        return total + height;
+      },
+      0
+    );
     return (
       <SimpleScroller
         {...this.props}
         key="scroller"
         ref="scroller"
         setChildrenScrollProps={true}
-        onScroll={this.handleScroll} >
+        onScroll={this.handleScroll}
+        contentHeight={maxListHeight} >
         <InfiniteList
           ref="inifinite-list"
           viewportHeight={this.scrollerHeight}
           renderThreshold={this.props.renderThreshold}
           getItem={this.props.getItem}
           getItemInfo={this.props.getItemInfo}
-          onListDidUpdate={this.handleListDidUpdate} />
+          onDimensionsChange={this.handleDimensionsChange}
+          itemHeights={this.props.itemHeights}
+          maxListHeight={maxListHeight} />
       </SimpleScroller>
     );
   }
