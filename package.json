@@ -8,7 +8,7 @@
     "react-tap-event-plugin": "git+https://github.com/jnuine/react-tap-event-plugin.git#6183439"
   },
   "devDependencies": {
-    "babel": "5.0.9",
+    "babel": "5.2.17",
     "chokidar": "0.8.2"
   },
   "repository": {
