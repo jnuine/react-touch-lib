@@ -5,7 +5,7 @@
   "dependencies": {
     "immutable": "2.0.17",
     "react": "0.13.1",
-    "react-tap-event-plugin": "git+https://github.com/jnuine/react-touch-lib.git#6183439"
+    "react-tap-event-plugin": "git+https://github.com/jnuine/react-tap-event-plugin.git#6183439"
   },
   "devDependencies": {
     "babel": "5.0.9",
