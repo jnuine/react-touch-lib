@@ -2,6 +2,28 @@
 
 var React = require('react');
 
+var utils = {
+  preventDefaultException: function (el, exceptions) {
+		for ( var i in exceptions ) {
+			if ( exceptions[i].test(el[i]) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+};
+
+var PREVENT_DEFAULT_EXCEPTION = { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ };
+
+function preventEvent (event) {
+  if (
+    !utils.preventDefaultException(event.target, PREVENT_DEFAULT_EXCEPTION)
+  ) {
+    event.preventDefault();
+  }
+}
+
 var TouchableArea = React.createClass({
   getDefaultProps: function() {
     return {
@@ -16,7 +38,7 @@ var TouchableArea = React.createClass({
     }
 
     this.props.scroller.doTouchStart(e.touches, e.timeStamp);
-    e.preventDefault();
+    preventEvent(e);
   },
 
   handleTouchMove: function(e) {
@@ -34,7 +56,7 @@ var TouchableArea = React.createClass({
     }
 
     this.props.scroller.doTouchEnd(e.timeStamp);
-    e.preventDefault();
+    preventEvent(e);
   },
 
   render: function() {
