@@ -181,7 +181,7 @@ var SimpleScroller = React.createClass({
       <TouchableArea
         {...this.props}
         scroller={this.scroller}
-        style={{ overflow: 'hidden' }}
+        style={Object.assign({}, { overflow: 'hidden' }, this.props.style)}
         onStartShouldSetResponder={this.handleStartShouldSetResponder}
         onMoveShouldSetResponder={this.handleMoveShouldSetResponder}>
         <AnimatableContainer
