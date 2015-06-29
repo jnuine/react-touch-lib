@@ -89,13 +89,17 @@ var SimpleLeftNavContainer = React.createClass({
     var side = null;
 
     // TODO: we could do this with style calc
-    var sideStyle = {
-      bottom: 0,
-      left: this.props.sideWidth * -1,
-      position: 'absolute',
-      top: 0,
-      width: this.props.sideWidth
-    };
+    var sideStyle = Object.assign(
+      {},
+      {
+        bottom: 0,
+        left: this.props.sideWidth * -1,
+        position: 'absolute',
+        top: 0,
+        width: this.props.sideWidth
+      },
+      this.props.sideStyle,
+    );
 
     var behavior = this.props.behavior;
 

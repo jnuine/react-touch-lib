@@ -23,12 +23,12 @@ $(LIBDIR):
 $(LIBDIR)/%.js: $(SRCDIR)/%.react.js
 	@echo Compiling and copying $< to $@
 	@mkdir -p $(dir $@)
-	@babel $< > $@
+	@babel --stage 0 --optional runtime $< > $@
 
 $(LIBDIR)/%.js: $(SRCDIR)/%.js
 	@echo Copying $< to $@
 	@mkdir -p $(dir $@)
-	@babel $< > $@
+	@babel --stage 0 --optional runtime $< > $@
 
 # notes & reminders:
 #		$@ = target
