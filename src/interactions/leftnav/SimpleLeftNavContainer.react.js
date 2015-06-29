@@ -79,6 +79,13 @@ var SimpleLeftNavContainer = React.createClass({
     return this.state.scrollLeft !== this.props.sideWidth;
   },
 
+  isNavAnimating: function () {
+    return !(
+      this.state.scrollLeft === this.props.sideWidth ||
+      this.state.scrollLeft === 0
+    );
+  },
+
   render: function () {
     // props:
     // sideWidth
@@ -99,6 +106,7 @@ var SimpleLeftNavContainer = React.createClass({
         width: this.props.sideWidth
       },
       this.props.sideStyle,
+      this.isNavAnimating() ? {} : this.props.sideOpenedStyle
     );
 
     var behavior = this.props.behavior;
