@@ -81,13 +81,12 @@ var SimpleScroller = React.createClass({
     this.refreshScroller();
   },
 
-  scrollTo: function scrollTo(left, top) {
+  scrollTo: function scrollTo(left, top, animate) {
     if (left === null || left === undefined) {
       left = this.state.left;
     }
-    this.scroller.scrollTo(left, top);
+    this.scroller.scrollTo(left, top, animate);
   },
-
 
   refreshScroller: function () {
     var node = this.getDOMNode();
